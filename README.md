@@ -1,7 +1,5 @@
 # oss-capital-openbb
 
-![CleanShot 2025-04-19 at 18 26 32](https://github.com/user-attachments/assets/24829b70-ff8e-4710-b7f8-ad4ad6b9717f)
-
 ![CleanShot 2025-04-19 at 18 30 58](https://github.com/user-attachments/assets/70b03e7d-5839-4f73-bb00-bf8b9264fca8)
 
 Video: https://x.com/didier_lopes/status/1913710110838542515
@@ -49,6 +47,13 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
 The application will be available at `http://localhost:8000`
+
+
+Then add this new app to OpenBB workspace by adding:
+- Name: OSS Capital
+- URL: http://127.0.0.1:8000
+
+![CleanShot 2025-04-19 at 18 26 32](https://github.com/user-attachments/assets/24829b70-ff8e-4710-b7f8-ad4ad6b9717f)
 
 ### Docker Alternative
 
