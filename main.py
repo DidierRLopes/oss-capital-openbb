@@ -16,6 +16,9 @@ from openbb import obb
 import datetime
 import requests
 from dotenv import load_dotenv
+import base64
+import requests
+
 
 load_dotenv()
 
@@ -34,6 +37,25 @@ app.add_middleware(
 )
 
 ROOT_PATH = Path(__file__).parent.resolve()
+
+REPOS_TO_TRACK = [
+    'maybe-finance/maybe',
+    'openbb-finance/OpenBB',
+    'appsmithorg/appsmith',
+    'hoppscotch/hoppscotch',
+    'nocodb/nocodb',
+    'calcom/cal.com',
+    'remix-run/remix',
+    'dagster-io/dagster',
+    'cerbos/cerbos',
+    'plane-org/plane',
+    'opentensor/bittensor',
+    'rustdesk/rustdesk',
+    'traefik/traefik',
+    'appflowy/appflowy',
+    'researchhub/researchhub',
+    'w4games/godot',
+]
 
 
 @app.get("/")
@@ -241,29 +263,10 @@ def get_oss_company_stats():
 def get_github_stats():
     """Get GitHub repository statistics."""
     try:
-        # Define the list of repositories to track
-        repos = [
-            'openbb-finance/OpenBB',
-            'appsmithorg/appsmith',
-            'hoppscotch/hoppscotch',
-            'nocodb/nocodb',
-            'calcom/cal.com',
-            'remix-run/remix',
-            'dagster-io/dagster',
-            'cerbos/cerbos',
-            'plane-org/plane',
-            'bittensor/bittensor',
-            'rustdesk/rustdesk',
-            'traefik/traefik',
-            'appflowy/appflowy',
-            'researchhub/researchhub',
-            'w4games/godot',
-        ]
-
         # Initialize empty list to store data
         data = []
 
-        for repo in repos:
+        for repo in REPOS_TO_TRACK:
             try:
                 # Get repository stats
                 stats = get_repo_stats(repo)
@@ -328,3 +331,53 @@ def get_repo_stats(repo: str) -> dict:
     except Exception as e:
         return {'error': str(e)}
 
+
+@app.get("/star-history")
+@register_widget({
+    "name": "Star History",
+    "description": "Shows star history of popular repositories",
+    "category": "Open Source",
+    "type": "markdown",
+    "endpoint": "/star-history",
+    "gridData": {"w": 12, "h": 6},
+    "source": "Star History API",
+    "params": [
+        {
+            "paramName": "repositories",
+            "value": "openbb-finance/OpenBB",
+            "label": "Repositories",
+            "type": "text",
+            "description": "Repositories to track",
+            "multiSelect": True,
+            "options": [{"label": repo, "value": repo} for repo in REPOS_TO_TRACK],
+            "style": {
+                "popupWidth": 450
+            }
+        },
+        {
+            "paramName": "chart_type",
+            "value": "Date",
+            "label": "Type",
+            "type": "text",
+            "description": "Type of visualization",
+            "options": [
+                {"label": "Date", "value": "Date"},
+                {"label": "Timeline", "value": "Timeline"}
+            ]
+        },
+    ]
+})
+def get_star_history(repositories: str = "openbb-finance/OpenBB", chart_type: str = "Date", theme: str = "dark"):
+    """Return star history visualization for popular repositories."""
+
+    # Get star history SVG
+    url = f"https://api.star-history.com/svg?repos={repositories}&type={chart_type}&theme={theme}"
+
+    response = requests.get(url)
+    if response.status_code != 200:
+        return f"# Error\n\nFailed to get star history: {response.status_code}"
+    
+    # Convert SVG to base64
+    svg_base64 = base64.b64encode(response.content).decode('utf-8')
+    
+    return f"# Star History\n\n![Star History](data:image/svg+xml;base64,{svg_base64})"
