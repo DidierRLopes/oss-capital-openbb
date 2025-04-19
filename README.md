@@ -1,5 +1,11 @@
 # oss-capital-openbb
 
+![CleanShot 2025-04-19 at 18 26 32](https://github.com/user-attachments/assets/24829b70-ff8e-4710-b7f8-ad4ad6b9717f)
+
+![CleanShot 2025-04-19 at 18 30 58](https://github.com/user-attachments/assets/70b03e7d-5839-4f73-bb00-bf8b9264fca8)
+
+Video: https://x.com/didier_lopes/status/1913710110838542515
+
 ## Setup and Installation
 
 ### Prerequisites
