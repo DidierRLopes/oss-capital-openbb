@@ -2,7 +2,7 @@ import json
 import os
 from pathlib import Path
 import pandas as pd
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import plotly.graph_objects as go
@@ -48,7 +48,7 @@ REPOS_TO_TRACK = [
     'remix-run/remix',
     'dagster-io/dagster',
     'cerbos/cerbos',
-    'plane-org/plane',
+    'makeplane/plane',
     'opentensor/bittensor',
     'rustdesk/rustdesk',
     'traefik/traefik',
@@ -66,6 +66,12 @@ def read_root():
 @app.get("/widgets.json")
 async def get_widgets():
     return WIDGETS
+
+@app.get("/templates.json")
+async def get_templates():
+    with open(ROOT_PATH / "templates.json", "r") as f:
+        return json.load(f)
+
 
 @app.get("/oss-company-stats")
 @register_widget({
@@ -370,6 +376,12 @@ def get_repo_stats(repo: str) -> dict:
 def get_star_history(repositories: str = "openbb-finance/OpenBB", chart_type: str = "Date", theme: str = "dark"):
     """Return star history visualization for popular repositories."""
 
+    if repositories.count(",") > 4:
+        raise HTTPException(
+            status_code=400,
+            detail="Too many repositories - maximum of 5 repositories allowed"
+        )
+    
     # Get star history SVG
     url = f"https://api.star-history.com/svg?repos={repositories}&type={chart_type}&theme={theme}"
 
@@ -381,3 +393,88 @@ def get_star_history(repositories: str = "openbb-finance/OpenBB", chart_type: st
     svg_base64 = base64.b64encode(response.content).decode('utf-8')
     
     return f"# Star History\n\n![Star History](data:image/svg+xml;base64,{svg_base64})"
+
+@app.get("/trending-repos")
+@register_widget({
+    "name": "Trending Repositories",
+    "description": "Shows trending repositories based on stars in the last 7 days",
+    "category": "Open Source",
+    "type": "table",
+    "endpoint": "trending-repos",
+    "gridData": {"w": 40, "h": 15},
+    "source": "GitHub",
+    "data": {
+        "table": {
+            "showAll": True,
+            "columnsDefs": [
+                {
+                    "field": "Repository",
+                    "headerName": "Repository",
+                    "cellDataType": "text"
+                },
+                {
+                    "field": "Stars",
+                    "headerName": "Stars",
+                    "cellDataType": "number"
+                },
+                {
+                    "field": "Description",
+                    "headerName": "Description",
+                    "cellDataType": "text"
+                },
+                {
+                    "field": "URL",
+                    "headerName": "URL",
+                    "cellDataType": "text"
+                }
+            ]
+        }
+    }
+})
+def get_trending_repos(time_period: int = 7, language: str = None):
+    """Get trending repositories based on stars in the last X days."""
+    try:
+        headers = {
+            'Accept': 'application/vnd.github.v3+json'
+        }
+        
+        token = os.getenv('GITHUB_TOKEN')
+        if token:
+            headers['Authorization'] = f'token {token}'
+        
+        date = (datetime.datetime.now() - datetime.timedelta(days=time_period)).strftime('%Y-%m-%d')
+        query = f'created:>{date}'
+        if language:
+            query += f' language:{language}'
+        
+        url = 'https://api.github.com/search/repositories'
+        params = {
+            'q': query,
+            'sort': 'stars',
+            'order': 'desc',
+            'per_page': 10
+        }
+        
+        response = requests.get(url, headers=headers, params=params)
+        if response.status_code != 200:
+            raise Exception(f'API request failed: {response.status_code}, {response.text}')
+        
+        data = response.json()
+        
+        # Create list of dictionaries for the table
+        table_data = []
+        for repo in data['items']:
+            table_data.append({
+                'Repository': repo['full_name'],
+                'Stars': repo['stargazers_count'],
+                'Description': repo['description'] or '',
+                'URL': repo['html_url']
+            })
+        
+        return table_data
+
+    except Exception as e:
+        return JSONResponse(
+            content={"error": str(e)},
+            status_code=500
+        )
