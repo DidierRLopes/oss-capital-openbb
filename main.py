@@ -129,6 +129,8 @@ def get_oss_company_stats():
         start_date_1y = end_date - datetime.timedelta(days=365)
         start_date_1w = end_date - datetime.timedelta(days=7)
 
+        obb.user.credentials.fmp_api_key = os.getenv('FMP_API_KEY')
+
         for ticker in tickers:
             try:
                 hist_3y = obb.equity.price.historical(
