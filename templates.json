@@ -1,0 +1,73 @@
+[
+    {
+    "name": "OSS Capital",
+    "img": "https://i0.wp.com/oss.capital/wp-content/uploads/2025/03/ossc-featured.jpg?fit=1080%2C1080&ssl=1",
+    "img_dark": "https://i0.wp.com/oss.capital/wp-content/uploads/2025/03/ossc-featured.jpg?fit=1080%2C1080&ssl=1",
+    "img_light": "https://i0.wp.com/oss.capital/wp-content/uploads/2025/03/ossc-featured.jpg?fit=1080%2C1080&ssl=1",
+    "description": "Public OSS markets, and github stats of portfolio companies",
+    "allowCustomization": true,
+    "tabs": {
+      "": {
+        "id": "",
+        "name": "",
+        "layout": [
+          {
+            "i": "/star-history",
+            "x": 0,
+            "y": 15,
+            "w": 20,
+            "h": 18,
+            "state": {
+              "params": {
+                "repositories": [
+                  "openbb-finance/OpenBB"
+                ],
+                "chart_type": "Timeline"
+              }
+            }
+          },
+          {
+            "i": "trending-repos",
+            "x": 0,
+            "y": 33,
+            "w": 40,
+            "h": 13,
+            "state": {
+              "chartView": {
+                "enabled": false,
+                "chartType": "line"
+              }
+            }
+          },
+          {
+            "i": "github-stats",
+            "x": 20,
+            "y": 15,
+            "w": 20,
+            "h": 18,
+            "state": {
+              "chartView": {
+                "enabled": false,
+                "chartType": "line"
+              }
+            }
+          },
+          {
+            "i": "oss-company-stats",
+            "x": 0,
+            "y": 0,
+            "w": 40,
+            "h": 15,
+            "state": {
+              "chartView": {
+                "enabled": false,
+                "chartType": "line"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "groups": []
+  }
+]
